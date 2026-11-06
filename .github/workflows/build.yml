@@ -1,0 +1,35 @@
+name: Build article PDF
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  latex:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: wtfjoke/setup-tectonic@v4
+        with:
+          tectonic-version: "0.17.0"
+
+      - name: Compile article.tex
+        run: |
+          mkdir -p build
+          tectonic --untrusted -o build article.tex
+
+      - name: Upload article PDF
+        uses: actions/upload-artifact@v7
+        with:
+          path: build/article.pdf
+          archive: false
+          if-no-files-found: error
